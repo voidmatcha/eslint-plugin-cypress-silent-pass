@@ -80,5 +80,12 @@ ruleTester.run("no-silent-pass", rule, {
       output: null,
       errors: [{ messageId: "silentPass" }],
     },
+    // comment between expect() and the chai chain — reported, but NOT fixed
+    // (the rewrite would drop the comment).
+    {
+      code: "expect(cy.get('.x')) /* keep */ .to.exist;",
+      output: null,
+      errors: [{ messageId: "silentPass" }],
+    },
   ],
 });

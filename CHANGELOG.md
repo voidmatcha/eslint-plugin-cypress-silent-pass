@@ -2,6 +2,13 @@
 
 All notable changes are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/); this project follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] — 2026-06-27
+
+### Fixed
+- Auto-fix no longer **drops a comment** placed between `expect(...)` and the chai chain (e.g. `expect(cy.get('.x')) /* why */ .to.exist`); the fix is skipped (report-only) when such a comment exists.
+
+_(Surfaced via a cross-model review of the upstream `eslint-plugin-playwright` port of the sibling rule.)_
+
 ## [0.2.0] — 2026-06-27
 
 ### Changed

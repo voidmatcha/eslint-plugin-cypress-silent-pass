@@ -171,11 +171,18 @@ export default createRule<Options, MessageIds>({
           messageId: "silentPass",
           data: { chain: chainText, reason },
           fix(fixer) {
-            // Only auto-fix the high-confidence inline cy-query case, and only a
-            // standalone assertion statement — rewriting `expect(...)` used as a
-            // value would change what the expression evaluates to.
+            // Auto-fix only the safe case; each guard below bails to report-only.
+            // - subject must be an inline cy.* query
+            // - the assertion must be a standalone statement (rewriting a value-position expect changes what it evaluates to)
+            // - no comment between expect(...) and the chai chain (the rewrite would drop it)
             if (!isCyQuery(arg)) return null;
             if (fixTop.parent?.type !== AST_NODE_TYPES.ExpressionStatement) {
+              return null;
+            }
+            if (
+              sourceCode.getCommentsInside(fixTop).length >
+              sourceCode.getCommentsInside(arg).length
+            ) {
               return null;
             }
             return fixer.replaceText(
