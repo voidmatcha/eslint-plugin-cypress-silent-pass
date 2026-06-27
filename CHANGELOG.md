@@ -2,6 +2,11 @@
 
 All notable changes are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/); this project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] — 2026-06-27
+
+### Changed
+- README polish: title-case heading, real-world merged-PR evidence, package-manager install matrix (yarn/pnpm/bun), npx/bunx run, accurate false-positive wording. No rule behavior change.
+
 ## [0.1.0] — 2026-06-27
 
 ### Added
