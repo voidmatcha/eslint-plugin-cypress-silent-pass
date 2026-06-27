@@ -2,6 +2,17 @@
 
 All notable changes are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/); this project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] — 2026-06-27
+
+### Changed
+- Diagnostic message is now matcher-aware: `.to.be.ok` reports the chainable "is always truthy" and `.to.be.an('object')` reports it "is always an object", instead of a one-size-fits-all "always exists".
+
+### Fixed
+- Auto-fix now rewrites **only a standalone assertion statement**. When `expect(...)` is used as a value (e.g. `const r = expect(cy.get('.x')).to.exist`), the violation is reported but left unfixed, so the fix can no longer change what an expression evaluates to.
+
+### Notes
+- Cypress is **not** affected by the Playwright `await`-in-sync auto-fix bug fixed in its sibling plugin: `cy.get().should()` is a synchronous command-queue chain with no `await`, so there is no sync/async hazard here.
+
 ## [0.1.1] — 2026-06-27
 
 ### Changed

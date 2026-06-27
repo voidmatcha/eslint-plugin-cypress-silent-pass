@@ -30,9 +30,11 @@ ruleTester.run("no-silent-pass", rule, {
       errors: [{ messageId: "silentPass" }],
     },
     {
+      // A: matcher-aware reason — `.to.be.ok` passes because the chainable is truthy,
+      // not because it "exists".
       code: "expect(cy.get('.x')).to.be.ok;",
       output: "cy.get('.x').should('be.visible');",
-      errors: [{ messageId: "silentPass" }],
+      errors: [{ messageId: "silentPass", data: { chain: "to.be.ok", reason: "is always truthy" } }],
     },
     {
       code: "expect(cy.find('.row')).to.not.be.null;",
@@ -48,6 +50,27 @@ ruleTester.run("no-silent-pass", rule, {
     {
       code: "cy.get('.x').then(($el) => { expect($el).to.exist; });",
       options: [{ checkIdentifiers: true }],
+      output: null,
+      errors: [{ messageId: "silentPass" }],
+    },
+    // B-parallel: expect(...) used as a VALUE — still reported, but NOT auto-fixed,
+    // because rewriting to `cy.get(...).should(...)` would change what the
+    // expression evaluates to. Standalone assertion statements are still fixed.
+    {
+      code: "const r = expect(cy.get('.x')).to.exist;",
+      output: null,
+      errors: [{ messageId: "silentPass" }],
+    },
+    // edge: awaited cy assertion (unusual) — reported, never auto-fixed (rewriting
+    // would await a Cypress chainable). Parent is AwaitExpression, not a statement.
+    {
+      code: "async () => { await expect(cy.get('.x')).to.exist; };",
+      output: null,
+      errors: [{ messageId: "silentPass" }],
+    },
+    // edge: return position — reported, not fixed (rewrite would change the returned value)
+    {
+      code: "function f() { return expect(cy.get('.x')).to.exist; }",
       output: null,
       errors: [{ messageId: "silentPass" }],
     },

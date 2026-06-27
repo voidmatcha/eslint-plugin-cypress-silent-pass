@@ -50,6 +50,11 @@ The autofix rewrites inline `cy`-query violations to a retrying `.should()`:
 + cy.get('.user-badge').should('be.visible');
 ```
 
+The fix is applied **only to a standalone assertion statement**. When
+`expect(...)` is used as a value (e.g. `const r = expect(cy.get('.x')).to.exist`)
+the violation is reported but left unfixed, so the rewrite can't change what the
+expression evaluates to.
+
 ## Options
 
 ```jsonc
