@@ -1,11 +1,13 @@
-"use strict";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { afterAll, describe, it } from "vitest";
+import rule from "../src/rules/no-silent-pass";
 
-const { RuleTester } = require("eslint");
-const rule = require("../lib/rules/no-silent-pass");
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
+RuleTester.itOnly = it.only;
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2022, sourceType: "module" },
-});
+const ruleTester = new RuleTester();
 
 ruleTester.run("no-silent-pass", rule, {
   valid: [
@@ -20,6 +22,12 @@ ruleTester.run("no-silent-pass", rule, {
     // cy query but a meaningful (non-always-true) assertion
     "expect(cy.get('.x').its('length')).to.be.greaterThan(0);",
     "expect(cy.get('.x')).to.have.length(3);",
+    // polarity: these ALWAYS FAIL on a chainable, so must NOT be flagged
+    "expect(cy.get('.x')).to.not.exist;",
+    "expect(cy.get('.x')).to.be.null;",
+    "expect(cy.get('.x')).to.not.be.ok;",
+    // non-cy root not flagged (documented false negative)
+    "expect(Cypress.$('.x')).to.exist;",
     // jQuery identifier not flagged by default
     "cy.get('.x').then(($el) => { expect($el).to.exist; });",
   ],
@@ -30,11 +38,12 @@ ruleTester.run("no-silent-pass", rule, {
       errors: [{ messageId: "silentPass" }],
     },
     {
-      // A: matcher-aware reason — `.to.be.ok` passes because the chainable is truthy,
-      // not because it "exists".
+      // A: matcher-aware reason — `.to.be.ok` passes because the chainable is truthy
       code: "expect(cy.get('.x')).to.be.ok;",
       output: "cy.get('.x').should('be.visible');",
-      errors: [{ messageId: "silentPass", data: { chain: "to.be.ok", reason: "is always truthy" } }],
+      errors: [
+        { messageId: "silentPass", data: { chain: "to.be.ok", reason: "is always truthy" } },
+      ],
     },
     {
       code: "expect(cy.find('.row')).to.not.be.null;",
@@ -46,29 +55,26 @@ ruleTester.run("no-silent-pass", rule, {
       output: "cy.contains('Save').should('be.visible');",
       errors: [{ messageId: "silentPass" }],
     },
-    // jQuery identifier flagged only with the opt-in heuristic — report only, NOT autofixed
+    // jQuery identifier flagged only with the opt-in heuristic — report only, NOT fixed
     {
       code: "cy.get('.x').then(($el) => { expect($el).to.exist; });",
       options: [{ checkIdentifiers: true }],
       output: null,
       errors: [{ messageId: "silentPass" }],
     },
-    // B-parallel: expect(...) used as a VALUE — still reported, but NOT auto-fixed,
-    // because rewriting to `cy.get(...).should(...)` would change what the
-    // expression evaluates to. Standalone assertion statements are still fixed.
+    // B-parallel: expect(...) as a VALUE — reported, NOT fixed (rewrite would change the value)
     {
       code: "const r = expect(cy.get('.x')).to.exist;",
       output: null,
       errors: [{ messageId: "silentPass" }],
     },
-    // edge: awaited cy assertion (unusual) — reported, never auto-fixed (rewriting
-    // would await a Cypress chainable). Parent is AwaitExpression, not a statement.
+    // edge: awaited cy assertion — reported, never fixed (would await a chainable)
     {
       code: "async () => { await expect(cy.get('.x')).to.exist; };",
       output: null,
       errors: [{ messageId: "silentPass" }],
     },
-    // edge: return position — reported, not fixed (rewrite would change the returned value)
+    // edge: return position — reported, not fixed
     {
       code: "function f() { return expect(cy.get('.x')).to.exist; }",
       output: null,
@@ -76,5 +82,3 @@ ruleTester.run("no-silent-pass", rule, {
     },
   ],
 });
-
-console.log("no-silent-pass (cypress): all assertions passed");
