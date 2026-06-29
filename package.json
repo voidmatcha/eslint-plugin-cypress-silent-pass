@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-cypress-silent-pass",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "ESLint rule that flags Cypress chai assertions that always pass — cy.get() yields a chainable object that always exists, so expect(cy.get('.x')).to.exist / .to.be.ok / .not.to.be.null can never fail. Auto-fixable.",
   "keywords": [
     "eslint",

@@ -26,7 +26,7 @@ cy.get('.badge').should('be.visible');
 
 `eslint-plugin-cypress` ships no rule for this. `eslint-plugin-ui-testing` has `missing-assertion-in-test` (catches tests with **no** assertion) but not the **always-true** assertion above. This rule fills that gap and is designed to avoid false positives: it only fires when the `expect` subject is an inline `cy.*` query chain, so plain values and non-Cypress code are never touched.
 
-The always-pass class isn't hypothetical — fixes for silent-pass E2E assertions have been reviewed and merged into real projects (see [e2e-skills · Proven in OSS](https://github.com/voidmatcha/e2e-skills#proven-in-open-source), 8 merged PRs). This rule catches the inline `cy`-query slice of that class automatically.
+The always-pass class isn't hypothetical — fixes for silent-pass E2E assertions have been reviewed and merged into Storybook, code-server, Strapi, SvelteKit, Cal.com, and more (see [e2e-skills · Proven in OSS](https://github.com/voidmatcha/e2e-skills#proven-in-open-source), 10+ merged PRs). This rule catches the inline `cy`-query slice of that class automatically.
 
 ## Install
 
@@ -124,4 +124,3 @@ This plugin is the mechanical, AST-decidable slice; `e2e-skills` covers the rest
 ## License
 
 Apache-2.0 © [voidmatcha](https://github.com/voidmatcha). See [LICENSE](./LICENSE).
-
